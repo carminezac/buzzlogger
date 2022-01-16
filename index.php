@@ -1,12 +1,14 @@
 <?php
-$name = '';
+$name = $msg= '';
 $ipv4 = $_SERVER['REMOTE_ADDR'];
 if (isset($_POST['name'])) {
     $request_time =  DateTime::createFromFormat('U.u', $_SERVER['REQUEST_TIME_FLOAT'])->format("Y-m-d H:i:s.u");
     preg_match('/[A-Za-z0-9]+/', $_POST['name'], $m);
-    if (isset($m))
+    if (isset($m) && !empty($m)) {
         $name = $m[0];
-    file_put_contents('log.txt', "$request_time => $name [$ipv4]\n", FILE_APPEND);
+        file_put_contents('log.txt', "$request_time => $name [$ipv4]\n", FILE_APPEND);
+        $msg= '<h2 class="alert success">BUZZ ok! ('.$request_time.')</h2>';
+    } else $msg= '<h2 class="alert danger">Richiesta non registrata, nome non corretto (consentite solo lettere e numeri)</h2>';
 }
 ?>
 <!DOCTYPE html>
@@ -86,14 +88,37 @@ if (isset($_POST['name'])) {
             margin-bottom: 2rem;
             color: #777;
         }
+
+        .alert {
+            position: relative;
+            padding: 1rem 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid transparent;
+            border-radius: 0.25rem;
+            text-transform: uppercase;
+
+        }
+
+        .success {
+            color: #0f5132;
+            background-color: #d1e7dd;
+            border-color: #badbcc;
+        }
+
+        .danger {
+            color: #842029;
+            background-color: #f8d7da;
+            border-color: #f5c2c7;
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
+        <?=$msg;?>
         <form action="" method="post">
             <h1>Sei
-                <input type="text" style="font-size: 16px;" name="name" placeholder="Nome" value="<?= $name; ?>">
+                <input type="text" style="font-size: 16px;" name="name" placeholder="Nome" value="<?= $name; ?>" required>
                 [<?= $ipv4; ?>]
             </h1>
             <button class="button" type="submit">BUZZ</button>
